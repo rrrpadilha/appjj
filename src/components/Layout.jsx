@@ -4,12 +4,14 @@ import { useAuth } from '../contexts/AuthContext';
 import { Button } from './ui/button';
 
 const Layout = ({ children }) => {
-  const { user, logout } = useAuth();
+  const auth = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    logout();
-    navigate('/login');
+    if (auth && auth.logout) {
+      auth.logout();
+      navigate('/login');
+    }
   };
 
   return (
@@ -17,7 +19,7 @@ const Layout = ({ children }) => {
       <nav className="bg-secondary p-4">
         <ul className="flex space-x-4">
           <li><Link to="/" className="hover:text-primary">Home</Link></li>
-          {user && (
+          {auth && auth.user && (
             <>
               <li><Link to="/alunos" className="hover:text-primary">Alunos</Link></li>
               <li><Link to="/professores" className="hover:text-primary">Professores</Link></li>
@@ -28,7 +30,7 @@ const Layout = ({ children }) => {
             </>
           )}
           <li className="ml-auto">
-            {user ? (
+            {auth && auth.user ? (
               <Button onClick={handleLogout}>Logout</Button>
             ) : (
               <Link to="/login" className="hover:text-primary">Login</Link>
