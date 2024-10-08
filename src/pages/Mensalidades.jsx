@@ -7,6 +7,7 @@ import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
+import { Checkbox } from '../components/ui/checkbox';
 
 const Mensalidades = () => {
   const { register, handleSubmit, reset, setValue } = useForm();
@@ -23,11 +24,16 @@ const Mensalidades = () => {
   });
 
   const createMutation = useMutation({
-    mutationFn: (novaMensalidade) => api.createItem('mensalidades', novaMensalidade),
+    mutationFn: (novaMensalidade) => api.createItem('mensalidades', { ...novaMensalidade, pago: false }),
     onSuccess: () => {
       queryClient.invalidateQueries(['mensalidades']);
       reset();
     }
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, updates }) => api.updateItem('mensalidades', id, updates),
+    onSuccess: () => queryClient.invalidateQueries(['mensalidades'])
   });
 
   const deleteMutation = useMutation({
@@ -36,6 +42,10 @@ const Mensalidades = () => {
   });
 
   const onSubmit = (data) => createMutation.mutate(data);
+
+  const handlePagamentoChange = (id, pago) => {
+    updateMutation.mutate({ id, updates: { pago } });
+  };
 
   if (mensalidadesLoading || alunosLoading) return <Layout><div>Carregando...</div></Layout>;
 
@@ -65,6 +75,7 @@ const Mensalidades = () => {
             <TableHead>Aluno</TableHead>
             <TableHead>Valor</TableHead>
             <TableHead>Vencimento</TableHead>
+            <TableHead>Pago</TableHead>
             <TableHead>Ações</TableHead>
           </TableRow>
         </TableHeader>
@@ -74,6 +85,12 @@ const Mensalidades = () => {
               <TableCell>{alunos.find(a => a.id === mensalidade.alunoId)?.nome || 'N/A'}</TableCell>
               <TableCell>R$ {mensalidade.valor}</TableCell>
               <TableCell>{mensalidade.dataVencimento}</TableCell>
+              <TableCell>
+                <Checkbox
+                  checked={mensalidade.pago}
+                  onCheckedChange={(checked) => handlePagamentoChange(mensalidade.id, checked)}
+                />
+              </TableCell>
               <TableCell>
                 <Button variant="destructive" onClick={() => deleteMutation.mutate(mensalidade.id)}>
                   Excluir
