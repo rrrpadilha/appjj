@@ -11,13 +11,17 @@ import { toast } from 'sonner';
 const Login = () => {
   const { register, handleSubmit } = useForm();
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const auth = useAuth();
 
   const onSubmit = async (data) => {
     try {
-      await login(data.username, data.password);
-      toast.success('Login successful');
-      navigate('/');
+      if (auth && auth.login) {
+        await auth.login(data.username, data.password);
+        toast.success('Login successful');
+        navigate('/');
+      } else {
+        throw new Error('Login function not available');
+      }
     } catch (error) {
       toast.error('Login failed. Please check your credentials.');
     }
