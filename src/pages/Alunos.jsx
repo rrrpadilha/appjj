@@ -6,14 +6,25 @@ import Layout from '../components/Layout';
 import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../components/ui/table';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 
 const Alunos = () => {
-  const { register, handleSubmit, reset } = useForm();
+  const { register, handleSubmit, reset, setValue } = useForm();
   const queryClient = useQueryClient();
 
-  const { data: alunos, isLoading } = useQuery({
+  const { data: alunos, isLoading: alunosLoading } = useQuery({
     queryKey: ['alunos'],
     queryFn: () => api.getItems('alunos')
+  });
+
+  const { data: turmas, isLoading: turmasLoading } = useQuery({
+    queryKey: ['turmas'],
+    queryFn: () => api.getItems('turmas')
+  });
+
+  const { data: graduacoes, isLoading: graduacoesLoading } = useQuery({
+    queryKey: ['graduacoes'],
+    queryFn: () => api.getItems('graduacoes')
   });
 
   const createMutation = useMutation({
@@ -31,7 +42,7 @@ const Alunos = () => {
 
   const onSubmit = (data) => createMutation.mutate(data);
 
-  if (isLoading) return <Layout><div>Carregando...</div></Layout>;
+  if (alunosLoading || turmasLoading || graduacoesLoading) return <Layout><div>Carregando...</div></Layout>;
 
   return (
     <Layout>
@@ -40,6 +51,26 @@ const Alunos = () => {
       <form onSubmit={handleSubmit(onSubmit)} className="mb-4 space-y-4">
         <Input {...register('nome')} placeholder="Nome do Aluno" />
         <Input {...register('email')} placeholder="Email" type="email" />
+        <Select onValueChange={(value) => setValue('turmaId', value)}>
+          <SelectTrigger>
+            <SelectValue placeholder="Selecione uma turma" />
+          </SelectTrigger>
+          <SelectContent>
+            {turmas.map((turma) => (
+              <SelectItem key={turma.id} value={turma.id.toString()}>{turma.nome}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select onValueChange={(value) => setValue('graduacaoId', value)}>
+          <SelectTrigger>
+            <SelectValue placeholder="Selecione uma graduação" />
+          </SelectTrigger>
+          <SelectContent>
+            {graduacoes.map((graduacao) => (
+              <SelectItem key={graduacao.id} value={graduacao.id.toString()}>{graduacao.nome}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <Button type="submit">Adicionar Aluno</Button>
       </form>
 
@@ -48,6 +79,8 @@ const Alunos = () => {
           <TableRow>
             <TableHead>Nome</TableHead>
             <TableHead>Email</TableHead>
+            <TableHead>Turma</TableHead>
+            <TableHead>Graduação</TableHead>
             <TableHead>Ações</TableHead>
           </TableRow>
         </TableHeader>
@@ -56,6 +89,8 @@ const Alunos = () => {
             <TableRow key={aluno.id}>
               <TableCell>{aluno.nome}</TableCell>
               <TableCell>{aluno.email}</TableCell>
+              <TableCell>{turmas.find(t => t.id === aluno.turmaId)?.nome || 'N/A'}</TableCell>
+              <TableCell>{graduacoes.find(g => g.id === aluno.graduacaoId)?.nome || 'N/A'}</TableCell>
               <TableCell>
                 <Button variant="destructive" onClick={() => deleteMutation.mutate(aluno.id)}>
                   Excluir

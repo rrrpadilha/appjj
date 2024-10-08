@@ -1,7 +1,5 @@
-// Simula um atraso de rede
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-// Simula o armazenamento local
 const storage = {
   alunos: [],
   professores: [],
@@ -11,7 +9,6 @@ const storage = {
   presencas: []
 };
 
-// Funções genéricas CRUD
 const createItem = async (category, item) => {
   await delay(300);
   const newItem = { ...item, id: Date.now() };
@@ -44,9 +41,15 @@ const deleteItem = async (category, id) => {
   throw new Error('Item não encontrado');
 };
 
+const getRelatedItems = async (category, relatedCategory, id) => {
+  await delay(300);
+  return storage[relatedCategory].filter(item => item[category + 'Id'] === id);
+};
+
 export const api = {
   createItem,
   getItems,
   updateItem,
-  deleteItem
+  deleteItem,
+  getRelatedItems
 };

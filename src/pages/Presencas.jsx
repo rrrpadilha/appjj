@@ -6,14 +6,20 @@ import Layout from '../components/Layout';
 import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../components/ui/table';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 
 const Presencas = () => {
-  const { register, handleSubmit, reset } = useForm();
+  const { register, handleSubmit, reset, setValue } = useForm();
   const queryClient = useQueryClient();
 
-  const { data: presencas, isLoading } = useQuery({
+  const { data: presencas, isLoading: presencasLoading } = useQuery({
     queryKey: ['presencas'],
     queryFn: () => api.getItems('presencas')
+  });
+
+  const { data: alunos, isLoading: alunosLoading } = useQuery({
+    queryKey: ['alunos'],
+    queryFn: () => api.getItems('alunos')
   });
 
   const createMutation = useMutation({
@@ -31,14 +37,23 @@ const Presencas = () => {
 
   const onSubmit = (data) => createMutation.mutate(data);
 
-  if (isLoading) return <Layout><div>Carregando...</div></Layout>;
+  if (presencasLoading || alunosLoading) return <Layout><div>Carregando...</div></Layout>;
 
   return (
     <Layout>
       <h1 className="text-2xl font-bold mb-4">Controle de Presenças</h1>
       
       <form onSubmit={handleSubmit(onSubmit)} className="mb-4 space-y-4">
-        <Input {...register('aluno')} placeholder="Nome do Aluno" />
+        <Select onValueChange={(value) => setValue('alunoId', value)}>
+          <SelectTrigger>
+            <SelectValue placeholder="Selecione um aluno" />
+          </SelectTrigger>
+          <SelectContent>
+            {alunos.map((aluno) => (
+              <SelectItem key={aluno.id} value={aluno.id.toString()}>{aluno.nome}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <Input {...register('aula')} placeholder="Aula" />
         <Input {...register('data')} placeholder="Data" type="date" />
         <Button type="submit">Registrar Presença</Button>
@@ -56,7 +71,7 @@ const Presencas = () => {
         <TableBody>
           {presencas.map((presenca) => (
             <TableRow key={presenca.id}>
-              <TableCell>{presenca.aluno}</TableCell>
+              <TableCell>{alunos.find(a => a.id === presenca.alunoId)?.nome || 'N/A'}</TableCell>
               <TableCell>{presenca.aula}</TableCell>
               <TableCell>{presenca.data}</TableCell>
               <TableCell>
