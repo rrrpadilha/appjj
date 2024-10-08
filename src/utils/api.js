@@ -11,7 +11,7 @@ const storage = {
 
 // Simulated user data
 const users = [
-  { id: 1, username: 'admin', password: 'password123' }
+  { id: 1, username: 'admin', password: '12345' }
 ];
 
 const createItem = async (category, item) => {
