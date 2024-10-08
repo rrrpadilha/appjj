@@ -22,22 +22,26 @@ const ProtectedRoute = ({ children }) => {
   return children;
 };
 
+const AppRoutes = () => (
+  <Routes>
+    <Route path="/login" element={<Login />} />
+    <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+    <Route path="/alunos" element={<ProtectedRoute><Alunos /></ProtectedRoute>} />
+    <Route path="/professores" element={<ProtectedRoute><Professores /></ProtectedRoute>} />
+    <Route path="/turmas" element={<ProtectedRoute><Turmas /></ProtectedRoute>} />
+    <Route path="/graduacoes" element={<ProtectedRoute><Graduacoes /></ProtectedRoute>} />
+    <Route path="/mensalidades" element={<ProtectedRoute><Mensalidades /></ProtectedRoute>} />
+    <Route path="/presencas" element={<ProtectedRoute><Presencas /></ProtectedRoute>} />
+  </Routes>
+);
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <TooltipProvider>
         <Toaster />
         <BrowserRouter>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
-            <Route path="/alunos" element={<ProtectedRoute><Alunos /></ProtectedRoute>} />
-            <Route path="/professores" element={<ProtectedRoute><Professores /></ProtectedRoute>} />
-            <Route path="/turmas" element={<ProtectedRoute><Turmas /></ProtectedRoute>} />
-            <Route path="/graduacoes" element={<ProtectedRoute><Graduacoes /></ProtectedRoute>} />
-            <Route path="/mensalidades" element={<ProtectedRoute><Mensalidades /></ProtectedRoute>} />
-            <Route path="/presencas" element={<ProtectedRoute><Presencas /></ProtectedRoute>} />
-          </Routes>
+          <AppRoutes />
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>
