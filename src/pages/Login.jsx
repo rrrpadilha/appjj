@@ -1,20 +1,26 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import Layout from '../components/Layout';
 import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card';
+import { toast } from 'sonner';
 
 const Login = () => {
   const { register, handleSubmit } = useForm();
   const navigate = useNavigate();
+  const { login } = useAuth();
 
-  const onSubmit = (data) => {
-    // Aqui você implementaria a lógica de autenticação real
-    console.log('Login attempt:', data);
-    // Por enquanto, vamos apenas redirecionar para a página inicial
-    navigate('/');
+  const onSubmit = async (data) => {
+    try {
+      await login(data.username, data.password);
+      toast.success('Login successful');
+      navigate('/');
+    } catch (error) {
+      toast.error('Login failed. Please check your credentials.');
+    }
   };
 
   return (

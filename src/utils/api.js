@@ -9,6 +9,11 @@ const storage = {
   presencas: []
 };
 
+// Simulated user data
+const users = [
+  { id: 1, username: 'admin', password: 'password123' }
+];
+
 const createItem = async (category, item) => {
   await delay(300);
   const newItem = { ...item, id: Date.now() };
@@ -46,10 +51,36 @@ const getRelatedItems = async (category, relatedCategory, id) => {
   return storage[relatedCategory].filter(item => item[category + 'Id'] === id);
 };
 
+const login = async (username, password) => {
+  await delay(300);
+  const user = users.find(u => u.username === username && u.password === password);
+  if (user) {
+    const token = btoa(JSON.stringify({ id: user.id, username: user.username }));
+    return { user: { id: user.id, username: user.username }, token };
+  }
+  throw new Error('Invalid credentials');
+};
+
+const validateToken = async (token) => {
+  await delay(300);
+  try {
+    const userData = JSON.parse(atob(token));
+    const user = users.find(u => u.id === userData.id && u.username === userData.username);
+    if (user) {
+      return { id: user.id, username: user.username };
+    }
+    throw new Error('Invalid token');
+  } catch {
+    throw new Error('Invalid token');
+  }
+};
+
 export const api = {
   createItem,
   getItems,
   updateItem,
   deleteItem,
-  getRelatedItems
+  getRelatedItems,
+  login,
+  validateToken
 };
