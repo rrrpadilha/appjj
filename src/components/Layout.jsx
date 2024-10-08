@@ -13,6 +13,7 @@ const Layout = ({ children }) => {
           <li><Link to="/graduacoes" className="hover:text-primary">Graduações</Link></li>
           <li><Link to="/mensalidades" className="hover:text-primary">Mensalidades</Link></li>
           <li><Link to="/presencas" className="hover:text-primary">Presenças</Link></li>
+          <li className="ml-auto"><Link to="/login" className="hover:text-primary">Login</Link></li>
         </ul>
       </nav>
       <main className="container mx-auto p-4">
