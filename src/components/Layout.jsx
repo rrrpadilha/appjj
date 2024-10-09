@@ -27,6 +27,7 @@ const Layout = ({ children }) => {
               <li><Link to="/graduacoes" className="hover:text-primary">Graduações</Link></li>
               <li><Link to="/mensalidades" className="hover:text-primary">Mensalidades</Link></li>
               <li><Link to="/presencas" className="hover:text-primary">Presenças</Link></li>
+              <li><Link to="/relatorios" className="hover:text-primary">Relatórios</Link></li>
             </>
           )}
           <li className="ml-auto">

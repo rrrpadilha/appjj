@@ -11,6 +11,7 @@ import Turmas from "./pages/Turmas";
 import Graduacoes from "./pages/Graduacoes";
 import Mensalidades from "./pages/Mensalidades";
 import Presencas from "./pages/Presencas";
+import Relatorios from "./pages/Relatorios";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +33,7 @@ const AppRoutes = () => (
     <Route path="/graduacoes" element={<ProtectedRoute><Graduacoes /></ProtectedRoute>} />
     <Route path="/mensalidades" element={<ProtectedRoute><Mensalidades /></ProtectedRoute>} />
     <Route path="/presencas" element={<ProtectedRoute><Presencas /></ProtectedRoute>} />
+    <Route path="/relatorios" element={<ProtectedRoute><Relatorios /></ProtectedRoute>} />
   </Routes>
 );
 
