@@ -6,10 +6,9 @@ import Layout from '../components/Layout';
 import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../components/ui/table';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 
 const Professores = () => {
-  const { register, handleSubmit, reset, setValue } = useForm();
+  const { register, handleSubmit, reset } = useForm();
   const queryClient = useQueryClient();
 
   const { data: professores, isLoading: professoresLoading } = useQuery({
@@ -23,16 +22,11 @@ const Professores = () => {
   });
 
   const createMutation = useMutation({
-    mutationFn: (novoProfessor) => api.createItem('professores', { ...novoProfessor, alunosIds: [] }),
+    mutationFn: (novoProfessor) => api.createItem('professores', novoProfessor),
     onSuccess: () => {
       queryClient.invalidateQueries(['professores']);
       reset();
     }
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: ({ id, updates }) => api.updateItem('professores', id, updates),
-    onSuccess: () => queryClient.invalidateQueries(['professores'])
   });
 
   const deleteMutation = useMutation({
@@ -41,18 +35,6 @@ const Professores = () => {
   });
 
   const onSubmit = (data) => createMutation.mutate(data);
-
-  const handleVincularAluno = (professorId, alunoId) => {
-    const professor = professores.find(p => p.id === professorId);
-    const alunosIds = [...(professor.alunosIds || []), alunoId];
-    updateMutation.mutate({ id: professorId, updates: { alunosIds } });
-  };
-
-  const handleDesvincularAluno = (professorId, alunoId) => {
-    const professor = professores.find(p => p.id === professorId);
-    const alunosIds = (professor.alunosIds || []).filter(id => id !== alunoId);
-    updateMutation.mutate({ id: professorId, updates: { alunosIds } });
-  };
 
   if (professoresLoading || alunosLoading) return <Layout><div>Carregando...</div></Layout>;
 
@@ -81,35 +63,7 @@ const Professores = () => {
               <TableCell>{professor.nome}</TableCell>
               <TableCell>{professor.disciplina}</TableCell>
               <TableCell>
-                <Select onValueChange={(alunoId) => handleVincularAluno(professor.id, alunoId)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Vincular aluno" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {alunos
-                      .filter(aluno => !(professor.alunosIds || []).includes(aluno.id))
-                      .map((aluno) => (
-                        <SelectItem key={aluno.id} value={aluno.id.toString()}>{aluno.nome}</SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-                <ul className="mt-2">
-                  {(professor.alunosIds || []).map(alunoId => {
-                    const aluno = alunos.find(a => a.id === alunoId);
-                    return aluno ? (
-                      <li key={aluno.id} className="flex justify-between items-center">
-                        {aluno.nome}
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={() => handleDesvincularAluno(professor.id, aluno.id)}
-                        >
-                          Desvincular
-                        </Button>
-                      </li>
-                    ) : null;
-                  })}
-                </ul>
+                {alunos.filter(aluno => aluno.professorId === professor.id).map(aluno => aluno.nome).join(', ')}
               </TableCell>
               <TableCell>
                 <Button variant="destructive" onClick={() => deleteMutation.mutate(professor.id)}>
