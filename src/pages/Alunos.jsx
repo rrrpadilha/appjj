@@ -68,7 +68,7 @@ const Alunos = () => {
           </SelectTrigger>
           <SelectContent>
             {graduacoes.map((graduacao) => (
-              <SelectItem key={graduacao.id} value={graduacao.id.toString()}>{graduacao.nome}</SelectItem>
+              <SelectItem key={graduacao.id} value={graduacao.id.toString()}>{graduacao.nome} - {graduacao.cor}</SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -79,7 +79,7 @@ const Alunos = () => {
           <SelectContent>
             <SelectItem value="none">Nenhuma</SelectItem>
             {graduacoes.map((graduacao) => (
-              <SelectItem key={graduacao.id} value={graduacao.id.toString()}>{graduacao.nome}</SelectItem>
+              <SelectItem key={graduacao.id} value={graduacao.id.toString()}>{graduacao.nome} - {graduacao.cor}</SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -126,8 +126,8 @@ const Alunos = () => {
               <TableCell>{aluno.cpf}</TableCell>
               <TableCell>{aluno.dataNascimento}</TableCell>
               <TableCell>{aluno.dataInicio}</TableCell>
-              <TableCell>{graduacoes.find(g => g.id === aluno.graduacaoAtualId)?.nome || 'N/A'}</TableCell>
-              <TableCell>{aluno.graduacaoAnteriorId ? (graduacoes.find(g => g.id === aluno.graduacaoAnteriorId)?.nome || 'N/A') : 'Nenhuma'}</TableCell>
+              <TableCell>{graduacoes.find(g => g.id === aluno.graduacaoAtualId)?.nome} - {graduacoes.find(g => g.id === aluno.graduacaoAtualId)?.cor}</TableCell>
+              <TableCell>{aluno.graduacaoAnteriorId ? `${graduacoes.find(g => g.id === aluno.graduacaoAnteriorId)?.nome} - ${graduacoes.find(g => g.id === aluno.graduacaoAnteriorId)?.cor}` : 'Nenhuma'}</TableCell>
               <TableCell>{aluno.nomePai}</TableCell>
               <TableCell>{aluno.nomeMae}</TableCell>
               <TableCell>{aluno.telefone}</TableCell>

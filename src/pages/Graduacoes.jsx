@@ -6,9 +6,15 @@ import Layout from '../components/Layout';
 import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../components/ui/table';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
+
+const beltColors = [
+  'Branca', 'Cinza', 'Amarela', 'Laranja', 'Verde', 
+  'Azul', 'Roxa', 'Marrom', 'Preta', 'Coral'
+];
 
 const Graduacoes = () => {
-  const { register, handleSubmit, reset } = useForm();
+  const { register, handleSubmit, reset, setValue } = useForm();
   const queryClient = useQueryClient();
 
   const { data: graduacoes, isLoading } = useQuery({
@@ -39,7 +45,16 @@ const Graduacoes = () => {
       
       <form onSubmit={handleSubmit(onSubmit)} className="mb-4 space-y-4">
         <Input {...register('nome')} placeholder="Nome da Graduação" />
-        <Input {...register('duracao')} placeholder="Duração (em anos)" type="number" />
+        <Select onValueChange={(value) => setValue('cor', value)}>
+          <SelectTrigger>
+            <SelectValue placeholder="Selecione a cor da faixa" />
+          </SelectTrigger>
+          <SelectContent>
+            {beltColors.map((color) => (
+              <SelectItem key={color} value={color}>{color}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <Button type="submit">Adicionar Graduação</Button>
       </form>
 
@@ -47,7 +62,7 @@ const Graduacoes = () => {
         <TableHeader>
           <TableRow>
             <TableHead>Nome</TableHead>
-            <TableHead>Duração</TableHead>
+            <TableHead>Cor da Faixa</TableHead>
             <TableHead>Ações</TableHead>
           </TableRow>
         </TableHeader>
@@ -55,7 +70,7 @@ const Graduacoes = () => {
           {graduacoes.map((graduacao) => (
             <TableRow key={graduacao.id}>
               <TableCell>{graduacao.nome}</TableCell>
-              <TableCell>{graduacao.duracao} anos</TableCell>
+              <TableCell>{graduacao.cor}</TableCell>
               <TableCell>
                 <Button variant="destructive" onClick={() => deleteMutation.mutate(graduacao.id)}>
                   Excluir
