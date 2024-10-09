@@ -27,22 +27,12 @@ const Alunos = () => {
     queryFn: () => api.getItems('graduacoes')
   });
 
-  const { data: professores, isLoading: professoresLoading } = useQuery({
-    queryKey: ['professores'],
-    queryFn: () => api.getItems('professores')
-  });
-
   const createMutation = useMutation({
     mutationFn: (novoAluno) => api.createItem('alunos', novoAluno),
     onSuccess: () => {
       queryClient.invalidateQueries(['alunos']);
       reset();
     }
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: ({ id, updates }) => api.updateItem('alunos', id, updates),
-    onSuccess: () => queryClient.invalidateQueries(['alunos', 'professores'])
   });
 
   const deleteMutation = useMutation({
@@ -54,17 +44,13 @@ const Alunos = () => {
     const novoAluno = {
       ...data,
       turmaId: parseInt(data.turmaId),
-      graduacaoId: parseInt(data.graduacaoId),
-      professorId: data.professorId === 'none' ? null : parseInt(data.professorId)
+      graduacaoAtualId: parseInt(data.graduacaoAtualId),
+      graduacaoAnteriorId: parseInt(data.graduacaoAnteriorId)
     };
     createMutation.mutate(novoAluno);
   };
 
-  const handleVincularProfessor = (alunoId, professorId) => {
-    updateMutation.mutate({ id: alunoId, updates: { professorId: professorId === 'none' ? null : parseInt(professorId) } });
-  };
-
-  if (alunosLoading || turmasLoading || graduacoesLoading || professoresLoading) return <Layout><div>Carregando...</div></Layout>;
+  if (alunosLoading || turmasLoading || graduacoesLoading) return <Layout><div>Carregando...</div></Layout>;
 
   return (
     <Layout>
@@ -73,19 +59,12 @@ const Alunos = () => {
       <form onSubmit={handleSubmit(onSubmit)} className="mb-4 space-y-4">
         <Input {...register('nome')} placeholder="Nome do Aluno" />
         <Input {...register('email')} placeholder="Email" type="email" />
-        <Select onValueChange={(value) => setValue('turmaId', value)}>
+        <Input {...register('cpf')} placeholder="CPF" />
+        <Input {...register('dataNascimento')} placeholder="Data de Nascimento" type="date" />
+        <Input {...register('dataInicio')} placeholder="Data de Início" type="date" />
+        <Select onValueChange={(value) => setValue('graduacaoAtualId', value)}>
           <SelectTrigger>
-            <SelectValue placeholder="Selecione uma turma" />
-          </SelectTrigger>
-          <SelectContent>
-            {turmas.map((turma) => (
-              <SelectItem key={turma.id} value={turma.id.toString()}>{turma.nome}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select onValueChange={(value) => setValue('graduacaoId', value)}>
-          <SelectTrigger>
-            <SelectValue placeholder="Selecione uma graduação" />
+            <SelectValue placeholder="Graduação Atual" />
           </SelectTrigger>
           <SelectContent>
             {graduacoes.map((graduacao) => (
@@ -93,14 +72,28 @@ const Alunos = () => {
             ))}
           </SelectContent>
         </Select>
-        <Select onValueChange={(value) => setValue('professorId', value)}>
+        <Select onValueChange={(value) => setValue('graduacaoAnteriorId', value)}>
           <SelectTrigger>
-            <SelectValue placeholder="Selecione um professor (opcional)" />
+            <SelectValue placeholder="Graduação Anterior" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="none">Nenhum professor</SelectItem>
-            {professores.map((professor) => (
-              <SelectItem key={professor.id} value={professor.id.toString()}>{professor.nome}</SelectItem>
+            <SelectItem value="">Nenhuma</SelectItem>
+            {graduacoes.map((graduacao) => (
+              <SelectItem key={graduacao.id} value={graduacao.id.toString()}>{graduacao.nome}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Input {...register('nomePai')} placeholder="Nome do Pai" />
+        <Input {...register('nomeMae')} placeholder="Nome da Mãe" />
+        <Input {...register('telefone')} placeholder="Telefone" />
+        <Input {...register('celular')} placeholder="Celular" />
+        <Select onValueChange={(value) => setValue('turmaId', value)}>
+          <SelectTrigger>
+            <SelectValue placeholder="Selecione uma turma" />
+          </SelectTrigger>
+          <SelectContent>
+            {turmas.map((turma) => (
+              <SelectItem key={turma.id} value={turma.id.toString()}>{turma.nome}</SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -112,9 +105,16 @@ const Alunos = () => {
           <TableRow>
             <TableHead>Nome</TableHead>
             <TableHead>Email</TableHead>
+            <TableHead>CPF</TableHead>
+            <TableHead>Data de Nascimento</TableHead>
+            <TableHead>Data de Início</TableHead>
+            <TableHead>Graduação Atual</TableHead>
+            <TableHead>Graduação Anterior</TableHead>
+            <TableHead>Nome do Pai</TableHead>
+            <TableHead>Nome da Mãe</TableHead>
+            <TableHead>Telefone</TableHead>
+            <TableHead>Celular</TableHead>
             <TableHead>Turma</TableHead>
-            <TableHead>Graduação</TableHead>
-            <TableHead>Professor</TableHead>
             <TableHead>Ações</TableHead>
           </TableRow>
         </TableHeader>
@@ -123,24 +123,16 @@ const Alunos = () => {
             <TableRow key={aluno.id}>
               <TableCell>{aluno.nome}</TableCell>
               <TableCell>{aluno.email}</TableCell>
+              <TableCell>{aluno.cpf}</TableCell>
+              <TableCell>{aluno.dataNascimento}</TableCell>
+              <TableCell>{aluno.dataInicio}</TableCell>
+              <TableCell>{graduacoes.find(g => g.id === aluno.graduacaoAtualId)?.nome || 'N/A'}</TableCell>
+              <TableCell>{graduacoes.find(g => g.id === aluno.graduacaoAnteriorId)?.nome || 'N/A'}</TableCell>
+              <TableCell>{aluno.nomePai}</TableCell>
+              <TableCell>{aluno.nomeMae}</TableCell>
+              <TableCell>{aluno.telefone}</TableCell>
+              <TableCell>{aluno.celular}</TableCell>
               <TableCell>{turmas.find(t => t.id === aluno.turmaId)?.nome || 'N/A'}</TableCell>
-              <TableCell>{graduacoes.find(g => g.id === aluno.graduacaoId)?.nome || 'N/A'}</TableCell>
-              <TableCell>
-                <Select 
-                  defaultValue={aluno.professorId?.toString() || 'none'}
-                  onValueChange={(value) => handleVincularProfessor(aluno.id, value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione um professor" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">Nenhum professor</SelectItem>
-                    {professores.map((professor) => (
-                      <SelectItem key={professor.id} value={professor.id.toString()}>{professor.nome}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </TableCell>
               <TableCell>
                 <Button variant="destructive" onClick={() => deleteMutation.mutate(aluno.id)}>
                   Excluir
