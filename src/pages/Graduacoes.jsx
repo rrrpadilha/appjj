@@ -3,7 +3,6 @@ import { useForm } from 'react-hook-form';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../utils/api';
 import Layout from '../components/Layout';
-import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
@@ -14,7 +13,7 @@ const beltColors = [
 ];
 
 const Graduacoes = () => {
-  const { register, handleSubmit, reset, setValue } = useForm();
+  const { handleSubmit, reset, setValue } = useForm();
   const queryClient = useQueryClient();
 
   const { data: graduacoes, isLoading } = useQuery({
@@ -44,7 +43,6 @@ const Graduacoes = () => {
       <h1 className="text-2xl font-bold mb-4">Cadastro de Graduações</h1>
       
       <form onSubmit={handleSubmit(onSubmit)} className="mb-4 space-y-4">
-        <Input {...register('nome')} placeholder="Nome da Graduação" />
         <Select onValueChange={(value) => setValue('cor', value)}>
           <SelectTrigger>
             <SelectValue placeholder="Selecione a cor da faixa" />
@@ -61,7 +59,6 @@ const Graduacoes = () => {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Nome</TableHead>
             <TableHead>Cor da Faixa</TableHead>
             <TableHead>Ações</TableHead>
           </TableRow>
@@ -69,7 +66,6 @@ const Graduacoes = () => {
         <TableBody>
           {graduacoes.map((graduacao) => (
             <TableRow key={graduacao.id}>
-              <TableCell>{graduacao.nome}</TableCell>
               <TableCell>{graduacao.cor}</TableCell>
               <TableCell>
                 <Button variant="destructive" onClick={() => deleteMutation.mutate(graduacao.id)}>
