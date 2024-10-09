@@ -55,13 +55,13 @@ const Alunos = () => {
       ...data,
       turmaId: parseInt(data.turmaId),
       graduacaoId: parseInt(data.graduacaoId),
-      professorId: data.professorId ? parseInt(data.professorId) : null
+      professorId: data.professorId === 'none' ? null : parseInt(data.professorId)
     };
     createMutation.mutate(novoAluno);
   };
 
   const handleVincularProfessor = (alunoId, professorId) => {
-    updateMutation.mutate({ id: alunoId, updates: { professorId: parseInt(professorId) } });
+    updateMutation.mutate({ id: alunoId, updates: { professorId: professorId === 'none' ? null : parseInt(professorId) } });
   };
 
   if (alunosLoading || turmasLoading || graduacoesLoading || professoresLoading) return <Layout><div>Carregando...</div></Layout>;
@@ -98,7 +98,7 @@ const Alunos = () => {
             <SelectValue placeholder="Selecione um professor (opcional)" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Nenhum professor</SelectItem>
+            <SelectItem value="none">Nenhum professor</SelectItem>
             {professores.map((professor) => (
               <SelectItem key={professor.id} value={professor.id.toString()}>{professor.nome}</SelectItem>
             ))}
@@ -127,14 +127,14 @@ const Alunos = () => {
               <TableCell>{graduacoes.find(g => g.id === aluno.graduacaoId)?.nome || 'N/A'}</TableCell>
               <TableCell>
                 <Select 
-                  defaultValue={aluno.professorId?.toString() || ''}
+                  defaultValue={aluno.professorId?.toString() || 'none'}
                   onValueChange={(value) => handleVincularProfessor(aluno.id, value)}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione um professor" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Nenhum professor</SelectItem>
+                    <SelectItem value="none">Nenhum professor</SelectItem>
                     {professores.map((professor) => (
                       <SelectItem key={professor.id} value={professor.id.toString()}>{professor.nome}</SelectItem>
                     ))}
