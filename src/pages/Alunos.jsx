@@ -45,7 +45,7 @@ const Alunos = () => {
       ...data,
       turmaId: parseInt(data.turmaId),
       graduacaoAtualId: parseInt(data.graduacaoAtualId),
-      graduacaoAnteriorId: parseInt(data.graduacaoAnteriorId)
+      graduacaoAnteriorId: data.graduacaoAnteriorId === 'none' ? null : parseInt(data.graduacaoAnteriorId)
     };
     createMutation.mutate(novoAluno);
   };
@@ -77,7 +77,7 @@ const Alunos = () => {
             <SelectValue placeholder="Graduação Anterior" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Nenhuma</SelectItem>
+            <SelectItem value="none">Nenhuma</SelectItem>
             {graduacoes.map((graduacao) => (
               <SelectItem key={graduacao.id} value={graduacao.id.toString()}>{graduacao.nome}</SelectItem>
             ))}
@@ -127,7 +127,7 @@ const Alunos = () => {
               <TableCell>{aluno.dataNascimento}</TableCell>
               <TableCell>{aluno.dataInicio}</TableCell>
               <TableCell>{graduacoes.find(g => g.id === aluno.graduacaoAtualId)?.nome || 'N/A'}</TableCell>
-              <TableCell>{graduacoes.find(g => g.id === aluno.graduacaoAnteriorId)?.nome || 'N/A'}</TableCell>
+              <TableCell>{aluno.graduacaoAnteriorId ? (graduacoes.find(g => g.id === aluno.graduacaoAnteriorId)?.nome || 'N/A') : 'Nenhuma'}</TableCell>
               <TableCell>{aluno.nomePai}</TableCell>
               <TableCell>{aluno.nomeMae}</TableCell>
               <TableCell>{aluno.telefone}</TableCell>
