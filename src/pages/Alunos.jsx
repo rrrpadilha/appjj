@@ -27,6 +27,11 @@ const Alunos = () => {
     queryFn: () => api.getItems('graduacoes')
   });
 
+  const { data: professores, isLoading: professoresLoading } = useQuery({
+    queryKey: ['professores'],
+    queryFn: () => api.getItems('professores')
+  });
+
   const createMutation = useMutation({
     mutationFn: (novoAluno) => api.createItem('alunos', novoAluno),
     onSuccess: () => {
@@ -42,7 +47,7 @@ const Alunos = () => {
 
   const onSubmit = (data) => createMutation.mutate(data);
 
-  if (alunosLoading || turmasLoading || graduacoesLoading) return <Layout><div>Carregando...</div></Layout>;
+  if (alunosLoading || turmasLoading || graduacoesLoading || professoresLoading) return <Layout><div>Carregando...</div></Layout>;
 
   return (
     <Layout>
@@ -81,6 +86,7 @@ const Alunos = () => {
             <TableHead>Email</TableHead>
             <TableHead>Turma</TableHead>
             <TableHead>Graduação</TableHead>
+            <TableHead>Professor</TableHead>
             <TableHead>Ações</TableHead>
           </TableRow>
         </TableHeader>
@@ -91,6 +97,9 @@ const Alunos = () => {
               <TableCell>{aluno.email}</TableCell>
               <TableCell>{turmas.find(t => t.id === aluno.turmaId)?.nome || 'N/A'}</TableCell>
               <TableCell>{graduacoes.find(g => g.id === aluno.graduacaoId)?.nome || 'N/A'}</TableCell>
+              <TableCell>
+                {professores.find(p => (p.alunosIds || []).includes(aluno.id))?.nome || 'Não vinculado'}
+              </TableCell>
               <TableCell>
                 <Button variant="destructive" onClick={() => deleteMutation.mutate(aluno.id)}>
                   Excluir
