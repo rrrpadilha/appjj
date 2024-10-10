@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../utils/api';
@@ -7,10 +7,12 @@ import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
 
 const Alunos = () => {
   const { register, handleSubmit, reset, setValue } = useForm();
   const queryClient = useQueryClient();
+  const [editingAluno, setEditingAluno] = useState(null);
 
   const { data: alunos, isLoading: alunosLoading } = useQuery({
     queryKey: ['alunos'],
@@ -35,6 +37,14 @@ const Alunos = () => {
     }
   });
 
+  const updateMutation = useMutation({
+    mutationFn: (alunoAtualizado) => api.updateItem('alunos', alunoAtualizado.id, alunoAtualizado),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['alunos']);
+      setEditingAluno(null);
+    }
+  });
+
   const deleteMutation = useMutation({
     mutationFn: (id) => api.deleteItem('alunos', id),
     onSuccess: () => queryClient.invalidateQueries(['alunos'])
@@ -48,7 +58,18 @@ const Alunos = () => {
       graduacaoAnteriorId: data.graduacaoAnteriorId === 'none' ? null : parseInt(data.graduacaoAnteriorId),
       senha: 'sys123' // Senha padrão definida aqui
     };
-    createMutation.mutate(novoAluno);
+    if (editingAluno) {
+      updateMutation.mutate({ ...novoAluno, id: editingAluno.id });
+    } else {
+      createMutation.mutate(novoAluno);
+    }
+  };
+
+  const handleEdit = (aluno) => {
+    setEditingAluno(aluno);
+    Object.keys(aluno).forEach(key => {
+      setValue(key, aluno[key]);
+    });
   };
 
   if (alunosLoading || turmasLoading || graduacoesLoading) return <Layout><div>Carregando...</div></Layout>;
@@ -61,8 +82,8 @@ const Alunos = () => {
         <Input {...register('nome')} placeholder="Nome do Aluno" />
         <Input {...register('email')} placeholder="Email" type="email" />
         <Input {...register('cpf')} placeholder="CPF" />
-        <Input {...register('dataNascimento')} placeholder="Data de Nascimento" type="date" />
-        <Input {...register('dataInicio')} placeholder="Data de Início" type="date" />
+        <Input {...register('dataNascimento')} placeholder="Data de Nascimento (DD/MM/AAAA)" type="text" />
+        <Input {...register('dataInicio')} placeholder="Data de Início na Academia (DD/MM/AAAA)" type="text" />
         <Select onValueChange={(value) => setValue('graduacaoAtualId', value)}>
           <SelectTrigger>
             <SelectValue placeholder="Graduação Atual" />
@@ -98,7 +119,7 @@ const Alunos = () => {
             ))}
           </SelectContent>
         </Select>
-        <Button type="submit">Adicionar Aluno</Button>
+        <Button type="submit">{editingAluno ? 'Atualizar Aluno' : 'Adicionar Aluno'}</Button>
       </form>
 
       <Table>
@@ -135,6 +156,20 @@ const Alunos = () => {
               <TableCell>{aluno.celular}</TableCell>
               <TableCell>{turmas.find(t => t.id === aluno.turmaId)?.nome || 'N/A'}</TableCell>
               <TableCell>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" onClick={() => handleEdit(aluno)}>Editar</Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Editar Aluno</DialogTitle>
+                    </DialogHeader>
+                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                      {/* Campos de edição aqui */}
+                      <Button type="submit">Salvar Alterações</Button>
+                    </form>
+                  </DialogContent>
+                </Dialog>
                 <Button variant="destructive" onClick={() => deleteMutation.mutate(aluno.id)}>
                   Excluir
                 </Button>
