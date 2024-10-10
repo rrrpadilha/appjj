@@ -24,7 +24,7 @@ const storage = {
 };
 
 const users = [
-  { id: 1, username: 'admin', password: '12345', role: 'admin' }
+  { id: 1, username: 'admin@admin.com.br', password: 'admin123', role: 'admin' }
 ];
 
 const createItem = async (category, item) => {
@@ -82,7 +82,7 @@ const login = async (email, password) => {
 const validateToken = async (token) => {
   await delay(300);
   if (token === 'admin-token') {
-    return { id: 1, username: 'admin', role: 'admin' };
+    return { id: 1, username: 'admin@admin.com.br', role: 'admin' };
   }
   
   const alunoId = token.split('-')[2];
