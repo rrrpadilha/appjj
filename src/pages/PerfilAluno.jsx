@@ -1,19 +1,45 @@
-import React from 'react';
-import { useQuery } from '@tanstack/react-query';
+import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../utils/api';
 import Layout from '../components/Layout';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../components/ui/table';
+import { Input } from '../components/ui/input';
+import { Button } from '../components/ui/button';
+import { toast } from 'sonner';
 
 const PerfilAluno = () => {
   const { user } = useAuth();
+  const [novaSenha, setNovaSenha] = useState('');
+  const queryClient = useQueryClient();
 
   const { data: alunoData, isLoading } = useQuery({
     queryKey: ['alunoData', user.id],
     queryFn: () => api.getAlunoData(user.id),
     enabled: !!user && user.role === 'aluno'
   });
+
+  const alterarSenhaMutation = useMutation({
+    mutationFn: (novaSenha) => api.alterarSenhaAluno(user.id, novaSenha),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['alunoData', user.id]);
+      toast.success('Senha alterada com sucesso!');
+      setNovaSenha('');
+    },
+    onError: () => {
+      toast.error('Erro ao alterar a senha. Tente novamente.');
+    }
+  });
+
+  const handleAlterarSenha = (e) => {
+    e.preventDefault();
+    if (novaSenha.length < 6) {
+      toast.error('A nova senha deve ter pelo menos 6 caracteres.');
+      return;
+    }
+    alterarSenhaMutation.mutate(novaSenha);
+  };
 
   if (isLoading) return <Layout><div>Carregando...</div></Layout>;
 
@@ -28,6 +54,23 @@ const PerfilAluno = () => {
             <p><strong>Nome:</strong> {alunoData.nome}</p>
             <p><strong>Email:</strong> {alunoData.email}</p>
             <p><strong>Graduação Atual:</strong> {alunoData.graduacao.cor}</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Alterar Senha</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleAlterarSenha} className="space-y-4">
+              <Input
+                type="password"
+                value={novaSenha}
+                onChange={(e) => setNovaSenha(e.target.value)}
+                placeholder="Nova senha"
+              />
+              <Button type="submit">Alterar Senha</Button>
+            </form>
           </CardContent>
         </Card>
 

@@ -111,6 +111,16 @@ const getAlunoData = async (alunoId) => {
   };
 };
 
+const alterarSenhaAluno = async (alunoId, novaSenha) => {
+  await delay(300);
+  const index = storage.alunos.findIndex(a => a.id === alunoId);
+  if (index !== -1) {
+    storage.alunos[index].senha = novaSenha;
+    return true;
+  }
+  throw new Error('Aluno não encontrado');
+};
+
 export const api = {
   createItem,
   getItems,
@@ -119,5 +129,6 @@ export const api = {
   getRelatedItems,
   login,
   validateToken,
-  getAlunoData
+  getAlunoData,
+  alterarSenhaAluno
 };
