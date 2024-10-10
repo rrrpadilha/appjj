@@ -15,7 +15,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Alunos Cadastrados</CardTitle>
@@ -41,6 +41,38 @@ const Dashboard = () => {
         </CardContent>
       </Card>
       <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Total Pago (Mês Atual)</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">R$ {dashboardData.totalPagoMes.toFixed(2)}</div>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Aniversariantes do Mês</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ul className="text-sm">
+            {dashboardData.aniversariantesMes.map((aniversariante, index) => (
+              <li key={index}>{aniversariante.nome} (Dia {aniversariante.data})</li>
+            ))}
+          </ul>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Aniversariantes do Dia</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ul className="text-sm">
+            {dashboardData.aniversariantesDia.map((aniversariante, index) => (
+              <li key={index}>{aniversariante.nome}</li>
+            ))}
+          </ul>
+        </CardContent>
+      </Card>
+      <Card className="col-span-full">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Alunos Mais Frequentes</CardTitle>
         </CardHeader>
