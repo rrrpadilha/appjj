@@ -121,6 +121,33 @@ const alterarSenhaAluno = async (alunoId, novaSenha) => {
   throw new Error('Aluno não encontrado');
 };
 
+const getDashboardData = async () => {
+  await delay(300);
+  const totalAlunos = storage.alunos.length;
+  const mensalidadesVencidas = storage.mensalidades.filter(m => !m.pago && new Date(m.dataVencimento) < new Date()).length;
+  const totalMensalidadesPagas = storage.mensalidades.filter(m => m.pago).reduce((total, m) => total + m.valor, 0);
+  
+  const presencasPorAluno = storage.presencas.reduce((acc, p) => {
+    acc[p.alunoId] = (acc[p.alunoId] || 0) + 1;
+    return acc;
+  }, {});
+  
+  const alunosMaisFrequentes = Object.entries(presencasPorAluno)
+    .map(([alunoId, presencas]) => ({
+      nome: storage.alunos.find(a => a.id === parseInt(alunoId)).nome,
+      presencas
+    }))
+    .sort((a, b) => b.presencas - a.presencas)
+    .slice(0, 5);
+
+  return {
+    totalAlunos,
+    mensalidadesVencidas,
+    totalMensalidadesPagas,
+    alunosMaisFrequentes
+  };
+};
+
 export const api = {
   createItem,
   getItems,
@@ -130,5 +157,6 @@ export const api = {
   login,
   validateToken,
   getAlunoData,
-  alterarSenhaAluno
+  alterarSenhaAluno,
+  getDashboardData
 };
