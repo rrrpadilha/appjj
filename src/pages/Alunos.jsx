@@ -40,21 +40,15 @@ const Alunos = () => {
     onSuccess: () => queryClient.invalidateQueries(['alunos'])
   });
 
-  const generatePassword = () => {
-    return Math.random().toString(36).slice(-8);
-  };
-
   const onSubmit = (data) => {
-    const senha = generatePassword();
     const novoAluno = {
       ...data,
       turmaId: parseInt(data.turmaId),
       graduacaoAtualId: parseInt(data.graduacaoAtualId),
       graduacaoAnteriorId: data.graduacaoAnteriorId === 'none' ? null : parseInt(data.graduacaoAnteriorId),
-      senha: senha
+      senha: 'sys123' // Senha padrão definida aqui
     };
     createMutation.mutate(novoAluno);
-    alert(`Senha gerada para o aluno: ${senha}`);
   };
 
   if (alunosLoading || turmasLoading || graduacoesLoading) return <Layout><div>Carregando...</div></Layout>;

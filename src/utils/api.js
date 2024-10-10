@@ -2,8 +2,8 @@ const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 const storage = {
   alunos: [
-    { id: 1, nome: 'João Silva', email: 'joao@example.com', senha: '123456', graduacaoAtualId: 1 },
-    { id: 2, nome: 'Maria Santos', email: 'maria@example.com', senha: '123456', graduacaoAtualId: 2 },
+    { id: 1, nome: 'João Silva', email: 'joao@example.com', senha: 'sys123', graduacaoAtualId: 1 },
+    { id: 2, nome: 'Maria Santos', email: 'maria@example.com', senha: 'sys123', graduacaoAtualId: 2 },
   ],
   professores: [],
   turmas: [],
