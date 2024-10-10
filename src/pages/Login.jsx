@@ -15,15 +15,11 @@ const Login = () => {
 
   const onSubmit = async (data) => {
     try {
-      if (auth && auth.login) {
-        await auth.login(data.username, data.password);
-        toast.success('Login successful');
-        navigate('/');
-      } else {
-        throw new Error('Login function not available');
-      }
+      await auth.login(data.email, data.password);
+      toast.success('Login bem-sucedido');
+      navigate('/');
     } catch (error) {
-      toast.error('Login failed. Please check your credentials.');
+      toast.error('Login falhou. Por favor, verifique suas credenciais.');
     }
   };
 
@@ -37,8 +33,8 @@ const Login = () => {
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div className="space-y-2">
-                <label htmlFor="username">Usuário</label>
-                <Input id="username" {...register('username')} placeholder="Seu usuário" />
+                <label htmlFor="email">Email</label>
+                <Input id="email" type="email" {...register('email')} placeholder="Seu email" />
               </div>
               <div className="space-y-2">
                 <label htmlFor="password">Senha</label>

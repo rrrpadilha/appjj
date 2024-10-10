@@ -12,12 +12,13 @@ import Graduacoes from "./pages/Graduacoes";
 import Mensalidades from "./pages/Mensalidades";
 import Presencas from "./pages/Presencas";
 import Relatorios from "./pages/Relatorios";
+import PerfilAluno from "./pages/PerfilAluno";
 
 const queryClient = new QueryClient();
 
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user } = useAuth();
-  if (!user) {
+  if (!user || (allowedRoles && !allowedRoles.includes(user.role))) {
     return <Navigate to="/login" replace />;
   }
   return children;
@@ -27,13 +28,14 @@ const AppRoutes = () => (
   <Routes>
     <Route path="/login" element={<Login />} />
     <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
-    <Route path="/alunos" element={<ProtectedRoute><Alunos /></ProtectedRoute>} />
-    <Route path="/professores" element={<ProtectedRoute><Professores /></ProtectedRoute>} />
-    <Route path="/turmas" element={<ProtectedRoute><Turmas /></ProtectedRoute>} />
-    <Route path="/graduacoes" element={<ProtectedRoute><Graduacoes /></ProtectedRoute>} />
-    <Route path="/mensalidades" element={<ProtectedRoute><Mensalidades /></ProtectedRoute>} />
-    <Route path="/presencas" element={<ProtectedRoute><Presencas /></ProtectedRoute>} />
-    <Route path="/relatorios" element={<ProtectedRoute><Relatorios /></ProtectedRoute>} />
+    <Route path="/alunos" element={<ProtectedRoute allowedRoles={['admin']}><Alunos /></ProtectedRoute>} />
+    <Route path="/professores" element={<ProtectedRoute allowedRoles={['admin']}><Professores /></ProtectedRoute>} />
+    <Route path="/turmas" element={<ProtectedRoute allowedRoles={['admin']}><Turmas /></ProtectedRoute>} />
+    <Route path="/graduacoes" element={<ProtectedRoute allowedRoles={['admin']}><Graduacoes /></ProtectedRoute>} />
+    <Route path="/mensalidades" element={<ProtectedRoute allowedRoles={['admin']}><Mensalidades /></ProtectedRoute>} />
+    <Route path="/presencas" element={<ProtectedRoute allowedRoles={['admin']}><Presencas /></ProtectedRoute>} />
+    <Route path="/relatorios" element={<ProtectedRoute allowedRoles={['admin']}><Relatorios /></ProtectedRoute>} />
+    <Route path="/perfil" element={<ProtectedRoute allowedRoles={['aluno']}><PerfilAluno /></ProtectedRoute>} />
   </Routes>
 );
 

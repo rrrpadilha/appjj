@@ -1,17 +1,30 @@
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 const storage = {
-  alunos: [],
+  alunos: [
+    { id: 1, nome: 'João Silva', email: 'joao@example.com', senha: '123456', graduacaoAtualId: 1 },
+    { id: 2, nome: 'Maria Santos', email: 'maria@example.com', senha: '123456', graduacaoAtualId: 2 },
+  ],
   professores: [],
   turmas: [],
-  graduacoes: [],
-  mensalidades: [],
-  presencas: []
+  graduacoes: [
+    { id: 1, cor: 'Branca' },
+    { id: 2, cor: 'Azul' },
+  ],
+  mensalidades: [
+    { id: 1, alunoId: 1, valor: 100, dataVencimento: '2023-05-10', pago: true },
+    { id: 2, alunoId: 1, valor: 100, dataVencimento: '2023-06-10', pago: false },
+    { id: 3, alunoId: 2, valor: 100, dataVencimento: '2023-05-10', pago: true },
+  ],
+  presencas: [
+    { id: 1, alunoId: 1, data: '2023-05-01', presente: true },
+    { id: 2, alunoId: 1, data: '2023-05-03', presente: true },
+    { id: 3, alunoId: 2, data: '2023-05-01', presente: true },
+  ]
 };
 
-// Simulated user data
 const users = [
-  { id: 1, username: 'admin', password: '12345' }
+  { id: 1, username: 'admin', password: '12345', role: 'admin' }
 ];
 
 const createItem = async (category, item) => {
@@ -51,28 +64,51 @@ const getRelatedItems = async (category, relatedCategory, id) => {
   return storage[relatedCategory].filter(item => item[category + 'Id'] === id);
 };
 
-const login = async (username, password) => {
+const login = async (email, password) => {
   await delay(300);
-  const user = users.find(u => u.username === username && u.password === password);
-  if (user) {
-    const token = btoa(JSON.stringify({ id: user.id, username: user.username }));
-    return { user: { id: user.id, username: user.username }, token };
+  const adminUser = users.find(u => u.username === email && u.password === password);
+  if (adminUser) {
+    return { user: { id: adminUser.id, username: adminUser.username, role: 'admin' }, token: 'admin-token' };
   }
-  throw new Error('Invalid credentials');
+  
+  const aluno = storage.alunos.find(a => a.email === email && a.senha === password);
+  if (aluno) {
+    return { user: { id: aluno.id, nome: aluno.nome, email: aluno.email, role: 'aluno' }, token: `aluno-token-${aluno.id}` };
+  }
+  
+  throw new Error('Credenciais inválidas');
 };
 
 const validateToken = async (token) => {
   await delay(300);
-  try {
-    const userData = JSON.parse(atob(token));
-    const user = users.find(u => u.id === userData.id && u.username === userData.username);
-    if (user) {
-      return { id: user.id, username: user.username };
-    }
-    throw new Error('Invalid token');
-  } catch {
-    throw new Error('Invalid token');
+  if (token === 'admin-token') {
+    return { id: 1, username: 'admin', role: 'admin' };
   }
+  
+  const alunoId = token.split('-')[2];
+  const aluno = storage.alunos.find(a => a.id === parseInt(alunoId));
+  if (aluno) {
+    return { id: aluno.id, nome: aluno.nome, email: aluno.email, role: 'aluno' };
+  }
+  
+  throw new Error('Token inválido');
+};
+
+const getAlunoData = async (alunoId) => {
+  await delay(300);
+  const aluno = storage.alunos.find(a => a.id === alunoId);
+  if (!aluno) throw new Error('Aluno não encontrado');
+  
+  const mensalidades = storage.mensalidades.filter(m => m.alunoId === alunoId);
+  const presencas = storage.presencas.filter(p => p.alunoId === alunoId);
+  const graduacao = storage.graduacoes.find(g => g.id === aluno.graduacaoAtualId);
+  
+  return {
+    ...aluno,
+    mensalidades,
+    presencas,
+    graduacao
+  };
 };
 
 export const api = {
@@ -82,5 +118,6 @@ export const api = {
   deleteItem,
   getRelatedItems,
   login,
-  validateToken
+  validateToken,
+  getAlunoData
 };

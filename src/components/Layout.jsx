@@ -19,7 +19,7 @@ const Layout = ({ children }) => {
       <nav className="bg-secondary p-4">
         <ul className="flex space-x-4">
           <li><Link to="/" className="hover:text-primary">Home</Link></li>
-          {auth && auth.user && (
+          {auth && auth.user && auth.user.role === 'admin' && (
             <>
               <li><Link to="/alunos" className="hover:text-primary">Alunos</Link></li>
               <li><Link to="/professores" className="hover:text-primary">Professores</Link></li>
@@ -29,6 +29,9 @@ const Layout = ({ children }) => {
               <li><Link to="/presencas" className="hover:text-primary">Presenças</Link></li>
               <li><Link to="/relatorios" className="hover:text-primary">Relatórios</Link></li>
             </>
+          )}
+          {auth && auth.user && auth.user.role === 'aluno' && (
+            <li><Link to="/perfil" className="hover:text-primary">Meu Perfil</Link></li>
           )}
           <li className="ml-auto">
             {auth && auth.user ? (
