@@ -120,7 +120,17 @@ const Alunos = () => {
             ))}
           </SelectContent>
         </Select>
-        <Input {...register('dataUltimaGraduacao')} type="date" placeholder="Data da Última Graduação (DD/MM/AAAA)" />
+        <div>
+          <label htmlFor="dataUltimaGraduacao" className="block text-sm font-medium text-gray-700">
+            Data da Última Graduação
+          </label>
+          <Input
+            id="dataUltimaGraduacao"
+            {...register('dataUltimaGraduacao')}
+            type="date"
+            placeholder="Data da Última Graduação (DD/MM/AAAA)"
+          />
+        </div>
         <Button type="submit">{editingAluno ? 'Atualizar Aluno' : 'Adicionar Aluno'}</Button>
       </form>
 
@@ -209,7 +219,17 @@ const Alunos = () => {
                           ))}
                         </SelectContent>
                       </Select>
-                      <Input {...register('dataUltimaGraduacao')} type="date" placeholder="Data da Última Graduação (DD/MM/AAAA)" />
+                      <div>
+                        <label htmlFor="editDataUltimaGraduacao" className="block text-sm font-medium text-gray-700">
+                          Data da Última Graduação
+                        </label>
+                        <Input
+                          id="editDataUltimaGraduacao"
+                          {...register('dataUltimaGraduacao')}
+                          type="date"
+                          placeholder="Data da Última Graduação (DD/MM/AAAA)"
+                        />
+                      </div>
                       <Button type="submit">Salvar Alterações</Button>
                     </form>
                   </DialogContent>
