@@ -3,19 +3,26 @@ import { useQuery } from '@tanstack/react-query';
 import { api } from '../utils/api';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 
 const Dashboard = () => {
-  const { data: dashboardData, isLoading } = useQuery({
+  const { data: dashboardData, isLoading: isDashboardLoading } = useQuery({
     queryKey: ['dashboardData'],
     queryFn: api.getDashboardData,
   });
 
-  if (isLoading) {
+  const { data: eligibleStudents, isLoading: isEligibleStudentsLoading } = useQuery({
+    queryKey: ['eligibleStudentsForGraduation'],
+    queryFn: api.getEligibleStudentsForGraduation,
+  });
+
+  if (isDashboardLoading || isEligibleStudentsLoading) {
     return <div>Carregando...</div>;
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <div className="space-y-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Alunos Cadastrados</CardTitle>
@@ -86,6 +93,33 @@ const Dashboard = () => {
               <Bar dataKey="presencas" fill="#8884d8" />
             </BarChart>
           </ResponsiveContainer>
+        </CardContent>
+      </Card>
+      </div>
+      
+      <Card className="col-span-full">
+        <CardHeader>
+          <CardTitle>Alunos Elegíveis para Graduação</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Nome</TableHead>
+                <TableHead>Última Graduação</TableHead>
+                <TableHead>Presenças (últimos 6 meses)</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {eligibleStudents.map((student) => (
+                <TableRow key={student.id}>
+                  <TableCell>{student.nome}</TableCell>
+                  <TableCell>{new Date(student.dataUltimaGraduacao).toLocaleDateString()}</TableCell>
+                  <TableCell>{student.presencas}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </CardContent>
       </Card>
     </div>
