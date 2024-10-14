@@ -172,6 +172,34 @@ const getDashboardData = async () => {
   };
 };
 
+const getEligibleStudentsForGraduation = async () => {
+  await delay(300);
+  const sixMonthsAgo = new Date();
+  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+  const eligibleStudents = storage.alunos.filter(aluno => {
+    const lastGraduationDate = new Date(aluno.dataUltimaGraduacao || aluno.dataInicio);
+    if (lastGraduationDate > sixMonthsAgo) {
+      return false;
+    }
+
+    const presencas = storage.presencas.filter(p => 
+      p.alunoId === aluno.id && new Date(p.data) >= sixMonthsAgo
+    );
+
+    return presencas.length >= 30;
+  });
+
+  return eligibleStudents.map(aluno => ({
+    id: aluno.id,
+    nome: aluno.nome,
+    dataUltimaGraduacao: aluno.dataUltimaGraduacao || aluno.dataInicio,
+    presencas: storage.presencas.filter(p => 
+      p.alunoId === aluno.id && new Date(p.data) >= sixMonthsAgo
+    ).length
+  }));
+};
+
 export const api = {
   createItem,
   getItems,
@@ -182,5 +210,6 @@ export const api = {
   validateToken,
   getAlunoData,
   alterarSenhaAluno,
-  getDashboardData
+  getDashboardData,
+  getEligibleStudentsForGraduation,
 };
