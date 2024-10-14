@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../utils/api';
@@ -8,10 +8,12 @@ import { Button } from '../components/ui/button';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Checkbox } from '../components/ui/checkbox';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
 
 const Mensalidades = () => {
   const { register, handleSubmit, reset, setValue } = useForm();
   const queryClient = useQueryClient();
+  const [editingMensalidade, setEditingMensalidade] = useState(null);
 
   const { data: mensalidades, isLoading: mensalidadesLoading } = useQuery({
     queryKey: ['mensalidades'],
@@ -33,7 +35,10 @@ const Mensalidades = () => {
 
   const updateMutation = useMutation({
     mutationFn: ({ id, updates }) => api.updateItem('mensalidades', id, updates),
-    onSuccess: () => queryClient.invalidateQueries(['mensalidades'])
+    onSuccess: () => {
+      queryClient.invalidateQueries(['mensalidades']);
+      setEditingMensalidade(null);
+    }
   });
 
   const deleteMutation = useMutation({
@@ -47,11 +52,22 @@ const Mensalidades = () => {
       alunoId: parseInt(data.alunoId),
       valor: parseFloat(data.valor)
     };
-    createMutation.mutate(novaMensalidade);
+    if (editingMensalidade) {
+      updateMutation.mutate({ id: editingMensalidade.id, updates: novaMensalidade });
+    } else {
+      createMutation.mutate(novaMensalidade);
+    }
   };
 
   const handlePagamentoChange = (id, pago) => {
     updateMutation.mutate({ id, updates: { pago } });
+  };
+
+  const handleEdit = (mensalidade) => {
+    setEditingMensalidade(mensalidade);
+    Object.keys(mensalidade).forEach(key => {
+      setValue(key, mensalidade[key]);
+    });
   };
 
   if (mensalidadesLoading || alunosLoading) return <Layout><div>Carregando...</div></Layout>;
@@ -73,7 +89,7 @@ const Mensalidades = () => {
         </Select>
         <Input {...register('valor')} placeholder="Valor" type="number" step="0.01" />
         <Input {...register('dataVencimento')} placeholder="Data de Vencimento" type="date" />
-        <Button type="submit">Adicionar Mensalidade</Button>
+        <Button type="submit">{editingMensalidade ? 'Atualizar Mensalidade' : 'Adicionar Mensalidade'}</Button>
       </form>
 
       <Table>
@@ -99,6 +115,31 @@ const Mensalidades = () => {
                 />
               </TableCell>
               <TableCell>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" onClick={() => handleEdit(mensalidade)}>Editar</Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Editar Mensalidade</DialogTitle>
+                    </DialogHeader>
+                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                      <Select onValueChange={(value) => setValue('alunoId', value)}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione um aluno" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {alunos.map((aluno) => (
+                            <SelectItem key={aluno.id} value={aluno.id.toString()}>{aluno.nome}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Input {...register('valor')} placeholder="Valor" type="number" step="0.01" />
+                      <Input {...register('dataVencimento')} placeholder="Data de Vencimento" type="date" />
+                      <Button type="submit">Salvar Alterações</Button>
+                    </form>
+                  </DialogContent>
+                </Dialog>
                 <Button variant="destructive" onClick={() => deleteMutation.mutate(mensalidade.id)}>
                   Excluir
                 </Button>

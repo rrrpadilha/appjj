@@ -6,11 +6,14 @@ import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../components/ui/table';
 import { Checkbox } from '../components/ui/checkbox';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 
 const Presencas = () => {
   const [selectedAlunos, setSelectedAlunos] = useState([]);
   const [aula, setAula] = useState('');
   const [data, setData] = useState('');
+  const [editingPresenca, setEditingPresenca] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: presencas, isLoading: presencasLoading } = useQuery({
@@ -30,6 +33,14 @@ const Presencas = () => {
       setSelectedAlunos([]);
       setAula('');
       setData('');
+    }
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: (presencaAtualizada) => api.updateItem('presencas', presencaAtualizada.id, presencaAtualizada),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['presencas']);
+      setEditingPresenca(null);
     }
   });
 
@@ -54,6 +65,21 @@ const Presencas = () => {
         ? prev.filter(id => id !== alunoId)
         : [...prev, alunoId]
     );
+  };
+
+  const handleEdit = (presenca) => {
+    setEditingPresenca(presenca);
+  };
+
+  const handleUpdatePresenca = (e) => {
+    e.preventDefault();
+    if (editingPresenca) {
+      updateMutation.mutate({
+        ...editingPresenca,
+        aula: aula || editingPresenca.aula,
+        data: data || editingPresenca.data,
+      });
+    }
   };
 
   if (presencasLoading || alunosLoading) return <Layout><div>Carregando...</div></Layout>;
@@ -105,6 +131,39 @@ const Presencas = () => {
               <TableCell>{presenca.aula}</TableCell>
               <TableCell>{presenca.data}</TableCell>
               <TableCell>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" onClick={() => handleEdit(presenca)}>Editar</Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Editar Presença</DialogTitle>
+                    </DialogHeader>
+                    <form onSubmit={handleUpdatePresenca} className="space-y-4">
+                      <Select onValueChange={(value) => setEditingPresenca({...editingPresenca, alunoId: parseInt(value)})}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione um aluno" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {alunos.map((aluno) => (
+                            <SelectItem key={aluno.id} value={aluno.id.toString()}>{aluno.nome}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Input
+                        value={aula}
+                        onChange={(e) => setAula(e.target.value)}
+                        placeholder="Aula"
+                      />
+                      <Input
+                        value={data}
+                        onChange={(e) => setData(e.target.value)}
+                        type="date"
+                      />
+                      <Button type="submit">Salvar Alterações</Button>
+                    </form>
+                  </DialogContent>
+                </Dialog>
                 <Button variant="destructive" onClick={() => deleteMutation.mutate(presenca.id)}>
                   Excluir
                 </Button>
