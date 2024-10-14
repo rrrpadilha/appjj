@@ -2,8 +2,8 @@ const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 const storage = {
   alunos: [
-    { id: 1, nome: 'João Silva', email: 'joao@example.com', senha: 'sys123', graduacaoAtualId: 1, dataNascimento: '1990-05-15' },
-    { id: 2, nome: 'Maria Santos', email: 'maria@example.com', senha: 'sys123', graduacaoAtualId: 2, dataNascimento: '1995-03-20' },
+    { id: 1, nome: 'João Silva', email: 'joao@example.com', senha: 'sys123', graduacaoAtualId: 1, dataNascimento: '1990-05-15', dataUltimaGraduacao: '2023-01-01' },
+    { id: 2, nome: 'Maria Santos', email: 'maria@example.com', senha: 'sys123', graduacaoAtualId: 2, dataNascimento: '1995-03-20', dataUltimaGraduacao: '2023-02-15' },
   ],
   professores: [],
   turmas: [],
@@ -30,6 +30,9 @@ const users = [
 const createItem = async (category, item) => {
   await delay(300);
   const newItem = { ...item, id: Date.now() };
+  if (category === 'alunos' && !newItem.dataUltimaGraduacao) {
+    newItem.dataUltimaGraduacao = new Date().toISOString().split('T')[0];
+  }
   storage[category].push(newItem);
   return newItem;
 };
@@ -178,7 +181,7 @@ const getEligibleStudentsForGraduation = async () => {
   sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
   const eligibleStudents = storage.alunos.filter(aluno => {
-    const lastGraduationDate = new Date(aluno.dataUltimaGraduacao || aluno.dataInicio);
+    const lastGraduationDate = new Date(aluno.dataUltimaGraduacao);
     if (lastGraduationDate > sixMonthsAgo) {
       return false;
     }
@@ -193,9 +196,9 @@ const getEligibleStudentsForGraduation = async () => {
   return eligibleStudents.map(aluno => ({
     id: aluno.id,
     nome: aluno.nome,
-    dataUltimaGraduacao: aluno.dataUltimaGraduacao || aluno.dataInicio,
+    dataUltimaGraduacao: aluno.dataUltimaGraduacao,
     presencas: storage.presencas.filter(p => 
-      p.alunoId === aluno.id && new Date(p.data) >= sixMonthsAgo
+      p.alunoId === aluno.id && new Date(p.data) >= new Date(aluno.dataUltimaGraduacao)
     ).length
   }));
 };

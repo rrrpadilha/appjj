@@ -56,7 +56,8 @@ const Alunos = () => {
       turmaId: parseInt(data.turmaId),
       graduacaoAtualId: parseInt(data.graduacaoAtualId),
       graduacaoAnteriorId: data.graduacaoAnteriorId === 'none' ? null : parseInt(data.graduacaoAnteriorId),
-      senha: 'sys123' // Senha padrão definida aqui
+      senha: 'sys123', // Senha padrão definida aqui
+      dataUltimaGraduacao: data.dataUltimaGraduacao || new Date().toISOString().split('T')[0]
     };
     if (editingAluno) {
       updateMutation.mutate({ ...novoAluno, id: editingAluno.id });
@@ -119,6 +120,7 @@ const Alunos = () => {
             ))}
           </SelectContent>
         </Select>
+        <Input {...register('dataUltimaGraduacao')} type="date" placeholder="Data da Última Graduação" />
         <Button type="submit">{editingAluno ? 'Atualizar Aluno' : 'Adicionar Aluno'}</Button>
       </form>
 
@@ -137,6 +139,7 @@ const Alunos = () => {
             <TableHead>Telefone</TableHead>
             <TableHead>Celular</TableHead>
             <TableHead>Turma</TableHead>
+            <TableHead>Data da Última Graduação</TableHead>
             <TableHead>Ações</TableHead>
           </TableRow>
         </TableHeader>
@@ -155,6 +158,7 @@ const Alunos = () => {
               <TableCell>{aluno.telefone}</TableCell>
               <TableCell>{aluno.celular}</TableCell>
               <TableCell>{turmas.find(t => t.id === aluno.turmaId)?.nome || 'N/A'}</TableCell>
+              <TableCell>{aluno.dataUltimaGraduacao}</TableCell>
               <TableCell>
                 <Dialog>
                   <DialogTrigger asChild>
