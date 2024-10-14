@@ -120,7 +120,7 @@ const Alunos = () => {
             ))}
           </SelectContent>
         </Select>
-        <Input {...register('dataUltimaGraduacao')} type="date" placeholder="Data da Última Graduação" />
+        <Input {...register('dataUltimaGraduacao')} type="date" placeholder="Data da Última Graduação (DD/MM/AAAA)" />
         <Button type="submit">{editingAluno ? 'Atualizar Aluno' : 'Adicionar Aluno'}</Button>
       </form>
 
@@ -169,7 +169,47 @@ const Alunos = () => {
                       <DialogTitle>Editar Aluno</DialogTitle>
                     </DialogHeader>
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                      {/* Campos de edição aqui */}
+                      <Input {...register('nome')} placeholder="Nome do Aluno" />
+                      <Input {...register('email')} placeholder="Email" type="email" />
+                      <Input {...register('cpf')} placeholder="CPF" />
+                      <Input {...register('dataNascimento')} placeholder="Data de Nascimento (DD/MM/AAAA)" type="text" />
+                      <Input {...register('dataInicio')} placeholder="Data de Início na Academia (DD/MM/AAAA)" type="text" />
+                      <Select onValueChange={(value) => setValue('graduacaoAtualId', value)}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Graduação Atual" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {graduacoes.map((graduacao) => (
+                            <SelectItem key={graduacao.id} value={graduacao.id.toString()}>{graduacao.cor}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Select onValueChange={(value) => setValue('graduacaoAnteriorId', value)}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Graduação Anterior" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">Nenhuma</SelectItem>
+                          {graduacoes.map((graduacao) => (
+                            <SelectItem key={graduacao.id} value={graduacao.id.toString()}>{graduacao.cor}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Input {...register('nomePai')} placeholder="Nome do Pai" />
+                      <Input {...register('nomeMae')} placeholder="Nome da Mãe" />
+                      <Input {...register('telefone')} placeholder="Telefone" />
+                      <Input {...register('celular')} placeholder="Celular" />
+                      <Select onValueChange={(value) => setValue('turmaId', value)}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione uma turma" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {turmas.map((turma) => (
+                            <SelectItem key={turma.id} value={turma.id.toString()}>{turma.nome}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Input {...register('dataUltimaGraduacao')} type="date" placeholder="Data da Última Graduação (DD/MM/AAAA)" />
                       <Button type="submit">Salvar Alterações</Button>
                     </form>
                   </DialogContent>
